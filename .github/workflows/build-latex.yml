@@ -5,10 +5,7 @@ on:
     branches: [main]
     paths:
       - "LiteratureReview/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "LiteratureReview/**"
+      - ".github/workflows/build-latex.yml"
   workflow_dispatch: # Allow manual triggering
 
 jobs:
