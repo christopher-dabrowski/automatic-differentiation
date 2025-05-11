@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
@@ -36,7 +36,7 @@ jobs:
         run: cp LiteratureReview/LiteratureReview.pdf pdf_artifacts/
 
       - name: Upload PDF as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: LiteratureReview
           path: pdf_artifacts/LiteratureReview.pdf
