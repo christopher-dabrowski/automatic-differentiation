@@ -2,14 +2,14 @@ name: Build LaTeX and Publish PDF
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'LiteratureReview/**'
+      - "LiteratureReview/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'LiteratureReview/**'
-  workflow_dispatch:  # Allow manual triggering
+      - "LiteratureReview/**"
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   build_latex:
