@@ -70,93 +70,61 @@ jobs:
           # Copy the latest PDF with timestamp in filename
           cp pdf_artifacts/LiteratureReview.pdf "docs/${PDF_FILENAME}"
           # Also copy it as the "latest" version
-          cp pdf_artifacts/LiteratureReview.pdf docs/LiteratureReview_latest.pdf
-
-          # Create index.html if it doesn't exist
+          cp pdf_artifacts/LiteratureReview.pdf docs/LiteratureReview_latest.pdf          # Create a simplified index.html file
           if [ ! -f docs/index.html ]; then
-            cat > docs/index.html << 'EOF'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automatic Differentiation - Literature Review</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #333;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-        }
-        .latest {
-            background-color: #e6f7ff;
-            border-left: 4px solid #1890ff;
-            font-weight: bold;
-        }
-        a {
-            text-decoration: none;
-            color: #0366d6;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .timestamp {
-            color: #666;
-            font-size: 0.8em;
-        }
-    </style>
-</head>
-<body>
-    <h1>Automatic Differentiation - Literature Review</h1>
-    <p>Generated PDFs from the LaTeX source</p>
-    <ul id="pdfList">
-        <li class="latest"><a href="LiteratureReview_latest.pdf">Latest version</a></li>
-    </ul>
-
-    <script>
-        // This script will be updated by the GitHub Action to list all PDFs
-        const pdfFiles = ["${PDF_FILENAME}"];
-        const pdfList = document.getElementById('pdfList');
-
-        pdfFiles.forEach(file => {
-            if (file !== "LiteratureReview_latest.pdf") {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.href = file;
-
-                // Extract timestamp from filename
-                const timestamp = file.replace('LiteratureReview_', '').replace('.pdf', '');
-                const formattedDate = timestamp.replace(/_/g, ' ').replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-
-                link.textContent = "Version from " + formattedDate;
-
-                li.appendChild(link);
-                pdfList.appendChild(li);
-            }
-        });
-    </script>
-</body>
-</html>
-EOF
+            echo '<!DOCTYPE html>' > docs/index.html
+            echo '<html lang="en">' >> docs/index.html
+            echo '<head>' >> docs/index.html
+            echo '    <meta charset="UTF-8">' >> docs/index.html
+            echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' >> docs/index.html
+            echo '    <title>Automatic Differentiation - Literature Review</title>' >> docs/index.html
+            echo '    <style>' >> docs/index.html
+            echo '        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }' >> docs/index.html
+            echo '        h1 { color: #333; }' >> docs/index.html
+            echo '        ul { list-style-type: none; padding: 0; }' >> docs/index.html
+            echo '        li { margin-bottom: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 4px; }' >> docs/index.html
+            echo '        .latest { background-color: #e6f7ff; border-left: 4px solid #1890ff; font-weight: bold; }' >> docs/index.html
+            echo '        a { text-decoration: none; color: #0366d6; }' >> docs/index.html
+            echo '        a:hover { text-decoration: underline; }' >> docs/index.html
+            echo '        .timestamp { color: #666; font-size: 0.8em; }' >> docs/index.html
+            echo '    </style>' >> docs/index.html
+            echo '</head>' >> docs/index.html
+            echo '<body>' >> docs/index.html
+            echo '    <h1>Automatic Differentiation - Literature Review</h1>' >> docs/index.html
+            echo '    <p>Generated PDFs from the LaTeX source</p>' >> docs/index.html
+            echo '    <ul id="pdfList">' >> docs/index.html
+            echo '        <li class="latest"><a href="LiteratureReview_latest.pdf">Latest version</a></li>' >> docs/index.html
+            echo '    </ul>' >> docs/index.html
+            echo '' >> docs/index.html
+            echo '    <script>' >> docs/index.html
+            echo '        // This script will be updated by the GitHub Action to list all PDFs' >> docs/index.html
+            echo '        const pdfFiles = ["'${PDF_FILENAME}'"];' >> docs/index.html
+            echo '        const pdfList = document.getElementById("pdfList");' >> docs/index.html
+            echo '        ' >> docs/index.html
+            echo '        pdfFiles.forEach(file => {' >> docs/index.html
+            echo '            if (file !== "LiteratureReview_latest.pdf") {' >> docs/index.html
+            echo '                const li = document.createElement("li");' >> docs/index.html
+            echo '                const link = document.createElement("a");' >> docs/index.html
+            echo '                link.href = file;' >> docs/index.html
+            echo '                ' >> docs/index.html
+            echo '                // Extract timestamp from filename' >> docs/index.html
+            echo '                const timestamp = file.replace("LiteratureReview_", "").replace(".pdf", "");' >> docs/index.html
+            echo '                const formattedDate = timestamp.replace(/_/g, " ").replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");' >> docs/index.html
+            echo '                ' >> docs/index.html
+            echo '                link.textContent = "Version from " + formattedDate;' >> docs/index.html
+            echo '                ' >> docs/index.html
+            echo '                li.appendChild(link);' >> docs/index.html
+            echo '                pdfList.appendChild(li);' >> docs/index.html
+            echo '            }' >> docs/index.html
+            echo '        });' >> docs/index.html
+            echo '    </script>' >> docs/index.html
+            echo '</body>' >> docs/index.html
+            echo '</html>' >> docs/index.html
           fi
 
           # Update the list of PDFs in the index.html file
           PDF_FILES=$(find docs -name "LiteratureReview_*.pdf" -not -name "LiteratureReview_latest.pdf" | sort -r | sed 's|docs/||' | sed 's/^/"/' | sed 's/$/",/' | tr '\n' ' ')
-          sed -i "s/const pdfFiles = \[.*\];/const pdfFiles = [${PDF_FILES}];/" docs/index.html
+          sed -i "s/const pdfFiles = \\[.*\\];/const pdfFiles = [${PDF_FILES}];/" docs/index.html
 
           # Add, commit and push the PDF and index
           git add docs/
