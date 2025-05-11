@@ -29,12 +29,25 @@ The differentiation allows to calculate how the function changes based on the in
 This information is very useful in most optimization problems.
 
 Automatic differentiation is a one of the techniques used to calculate the derivative of a function in a algorithmic way.
-In a fields when the exact function is known, but the entire function is complicated, the automatic differentiation technique is usually chosen.
+In a fields when the exact function is known, but the entire function is complicated, the automatic differentiation technique is usually chosen \cite{baydin2018automatic}.
 
 
 \section{Current Research}
 % podsumowanie najważniejszych badań (+ ew. wskazanie braków, rozbieżności)
 % Przejście w tył
+The are three main methods used to calculate the derivative of a function automatically:
+\begin{itemize}
+    \item \textbf{Symbolic differentiation} - symbolic representation of the function is transformed to the derivative form similar to the manual differentiation. This method is very accurate, but it tends to be slow or impractical for complex functions \cite{durrbaum2002comparison},
+    \item \textbf{Numerical differentiation} - this method uses numerical approximation to calculate the derivative. It is commonly used when the exact function is not known. The numerical differentiation is usually fast, but the results can be inaccurate \cite{cullum1971numerical},
+    \item \textbf{Automatic differentiation} - based on the chain rule. It allows for calculating the derivative of a complex functions while having the machine precision of the calculations \cite{baydin2018automatic}.
+\end{itemize}
+
+In my research \textbf{I'll be focusing on the automatic differentiation} as it is both versatile and accurate.
+The automatic differentiation is usually implemented in one two gradient accumulation modes.
+\paragraph{Forward mode} - the derivative is calculated in the forward direction, starting from the input variables and moving towards the output. The result of the functions is calculated at the same time as the gradient. It is efficient when differentiating functions with few input parameters \cite{revels2016forward}.
+\paragraph{Reverse mode} - a two step process is used to calculate the derivative. First the original function value is calculated and each operation dependencies are memorized. After that the derivative is calculated \cite{baydin2018automatic}.
+
+Some researchers are proposing that the symbolic differentiation can also be used even in complex functions \cite{laue2019equivalence}.
 
 \section{Research Justification}
 % uzasadnienie potrzeby przeprowadzenia własnego badania, wskazanie, w jaki sposób wpisuje się ono w istniejącą literaturę
