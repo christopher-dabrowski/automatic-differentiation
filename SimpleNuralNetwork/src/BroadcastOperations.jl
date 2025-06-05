@@ -1,23 +1,13 @@
 import Base: *
-import LinearAlgebra: mul!
-# x * y (aka matrix multiplication)
-*(A::GraphNode, x::GraphNode) = BroadcastedOperator(mul!, A, x)
-forward(::BroadcastedOperator{typeof(mul!)}, A, x) = return A * x
-backward(::BroadcastedOperator{typeof(mul!)}, A, x, g) = tuple(g * x', A' * g)
+import LinearAlgebra: mul!, diagm
 
-# x .* y (element-wise multiplication)
 Base.Broadcast.broadcasted(*, x::GraphNode, y::GraphNode) = BroadcastedOperator(*, x, y)
 forward(::BroadcastedOperator{typeof(*)}, x, y) = return x .* y
-backward(node::BroadcastedOperator{typeof(*)}, x, y, g) = let
-    𝟏 = ones(length(node.output))
-    Jx = diagm(y .* 𝟏)
-    Jy = diagm(x .* 𝟏)
-    tuple(Jx' * g, Jy' * g)
-end
+backward(::BroadcastedOperator{typeof(*)}, x, y, g) = (g .* y, g .* x)
 
 Base.Broadcast.broadcasted(-, x::GraphNode, y::GraphNode) = BroadcastedOperator(-, x, y)
 forward(::BroadcastedOperator{typeof(-)}, x, y) = return x .- y
-backward(::BroadcastedOperator{typeof(-)}, x, y, g) = tuple(g,-g)
+backward(::BroadcastedOperator{typeof(-)}, x, y, g) = tuple(g, -g)
 
 Base.Broadcast.broadcasted(+, x::GraphNode, y::GraphNode) = BroadcastedOperator(+, x, y)
 forward(::BroadcastedOperator{typeof(+)}, x, y) = return x .+ y
@@ -26,26 +16,75 @@ backward(::BroadcastedOperator{typeof(+)}, x, y, g) = tuple(g, g)
 import Base: sum
 sum(x::GraphNode) = BroadcastedOperator(sum, x)
 forward(::BroadcastedOperator{typeof(sum)}, x) = return sum(x)
-backward(::BroadcastedOperator{typeof(sum)}, x, g) = let
+backward(::BroadcastedOperator{typeof(sum)}, x, g) =
+  let
     𝟏 = ones(length(x))
     J = 𝟏'
     tuple(J' * g)
-end
+  end
 
 Base.Broadcast.broadcasted(/, x::GraphNode, y::GraphNode) = BroadcastedOperator(/, x, y)
 forward(::BroadcastedOperator{typeof(/)}, x, y) = return x ./ y
-backward(node::BroadcastedOperator{typeof(/)}, x, y::Real, g) = let
+backward(node::BroadcastedOperator{typeof(/)}, x, y::Real, g) =
+  let
     𝟏 = ones(length(node.output))
     Jx = diagm(𝟏 ./ y)
-    Jy = (-x ./ y .^2)
+    Jy = (-x ./ y .^ 2)
     tuple(Jx' * g, Jy' * g)
-end
+  end
 
 import Base: max
 Base.Broadcast.broadcasted(max, x::GraphNode, y::GraphNode) = BroadcastedOperator(max, x, y)
 forward(::BroadcastedOperator{typeof(max)}, x, y) = return max.(x, y)
-backward(::BroadcastedOperator{typeof(max)}, x, y, g) = let
+backward(::BroadcastedOperator{typeof(max)}, x, y, g) =
+  let
     Jx = diagm(isless.(y, x))
     Jy = diagm(isless.(x, y))
     tuple(Jx' * g, Jy' * g)
+  end
+
+Base.Broadcast.broadcasted(^, x::GraphNode, y::GraphNode) = BroadcastedOperator(^, x, y)
+forward(::BroadcastedOperator{typeof(^)}, x, y) = return x .^ y
+backward(node::BroadcastedOperator{typeof(^)}, x, y, g) =
+  let
+    𝟏 = ones(length(node.output))
+    Jx = diagm(y .* x .^ (y .- 1.0))
+    Jy = diagm(log.(abs.(x)) .* x .^ y)
+    tuple(Jx' * g, Jy' * g)
+  end
+
+Base.Broadcast.broadcasted(exp, x::GraphNode) = BroadcastedOperator(exp, x)
+forward(::BroadcastedOperator{typeof(exp)}, x) = return exp.(x)
+backward(node::BroadcastedOperator{typeof(exp)}, x, g) =
+  let
+    y = node.output
+    J = diagm(y)
+    tuple(J' * g)
+  end
+
+Base.Broadcast.broadcasted(log, x::GraphNode) = BroadcastedOperator(log, x)
+forward(::BroadcastedOperator{typeof(log)}, x) = return log.(x)
+backward(::BroadcastedOperator{typeof(log)}, x, g) = tuple(g ./ x)
+
+σ(x) = BroadcastedOperator(σ, x)
+forward(::BroadcastedOperator{typeof(σ)}, x) = return 1.0 ./ (1.0 .+ exp.(-x))
+backward(node::BroadcastedOperator{typeof(σ)}, x, g) = tuple(g .* node.output .* (1 .- node.output))
+
+
+softmax(x::GraphNode) = BroadcastedOperator(softmax, x)
+forward(::BroadcastedOperator{typeof(softmax)}, x) = return exp.(x) ./ sum(exp.(x))
+backward(node::BroadcastedOperator{typeof(σ)}, x, g) = tuple(g .* node.output .* (1 .- node.output))
+
+relu(x::GraphNode) = BroadcastedOperator(relu, x)
+forward(::BroadcastedOperator{typeof(relu)}, x) = return max.(0.0, x)
+backward(::BroadcastedOperator{typeof(relu)}, x, g) = tuple((x .> 0) .* g)
+
+import Statistics: mean
+mean(x::GraphNode) = BroadcastedOperator(mean, x)
+forward(::BroadcastedOperator{typeof(mean)}, x) = return mean(x)
+backward(::BroadcastedOperator{typeof(mean)}, x, g) = begin
+  n = length(x)
+  𝟏 = ones(n)
+  J = 𝟏 ./ n
+  return (J' * g,)
 end
